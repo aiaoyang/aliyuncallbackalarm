@@ -1,0 +1,15 @@
+---
+sms: 
+  phoneNumber:
+    - 15579167383
+    - 17679119900
+wechat:
+  users:
+    - yangjiangdong
+    - zhengyongfeng
+    - liuzhenyong
+    - zhangkui
+    - zhenyong
+  corpID: wwbd049c7c3bd9f25d
+  agentID: 1000002
+  secret: 0m6wkOIMhz-avtsXh_g9rG9lrtg3wueGebCGheyjJ7I
