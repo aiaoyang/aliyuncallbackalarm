@@ -10,28 +10,28 @@ import (
 )
 
 type recallMsg struct {
-	InstanceName  string `form:"instanceName"`
-	UserID        string `form:"userId"`
-	AlterName     string `form:"alertName"`
-	Timestamp     string `form:"timestamp"`
-	AlertState    string `form:"alertState"`
-	Dimensions    string `form:"dimensions"`
-	Expression    string `form:"expression"`
-	CurValue      string `form:"curValue"`
-	MetricName    string `form:"metricName"`
-	MetricProject string `form:"metricProject"`
+	// InstanceName  string `form:"instanceName"`
+	// UserID        string `form:"userId"`
+	AlterName  string `form:"alertName"`
+	Timestamp  string `form:"timestamp"`
+	AlertState string `form:"alertState"`
+	Dimensions string `form:"dimensions"`
+	Expression string `form:"expression"`
+	CurValue   string `form:"curValue"`
+	MetricName string `form:"metricName"`
+	// MetricProject string `form:"metricProject"`
 }
 
 func (r *recallMsg) String() string {
-	return fmt.Sprintf("告警规则名称:%s\n告警状态:%s\n告警内容:%v\n告警条件:%v\n当前值:%s\n告警项:%s\nMetricProject:%s\n",
+	return fmt.Sprintf("告警规则: [ %s ]\n告警状态: [ %s ]\n主机名: [ %s ]\n告警条件: [ %v ]\n告警指标: [ %s ]\n当前值: [ %s ]\n",
 		// r.UserID,
 		r.AlterName,
-		r.AlertState,
-		r.Dimensions,
+		// 根据instanceID 获取主机名
+		instance[keyValueToMap(r.Dimensions)["instanceId"]],
+		alertState[r.AlertState],
 		r.Expression,
+		metric[r.MetricName],
 		r.CurValue,
-		r.MetricName,
-		r.MetricProject,
 	)
 }
 func init() {

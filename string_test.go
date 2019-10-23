@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 )
@@ -43,4 +45,24 @@ func Test_sToJson(t *testing.T) {
 		m[s5[0]] = s5[1]
 	}
 	fmt.Println(m)
+}
+func Test_readIns(t *testing.T) {
+	f, err := os.Open("monitor.txt")
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	buf := bufio.NewReader(f)
+	m := make(map[string]string)
+	for {
+		l, _, err := buf.ReadLine()
+		if err != nil {
+			break
+		}
+		slice := strings.Fields(string(l))
+		m[slice[0]] = slice[2]
+	}
+	for k, v := range m {
+		fmt.Printf("metric[\"%s\"]=\"%s\"\n", k, v)
+	}
 }

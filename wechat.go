@@ -113,7 +113,6 @@ var cacheToken = &tokenCache{
 
 func sendWechatMSG(user string, msgInfo string) {
 	token := cacheToken.Get()
-	log.Printf("token is : %s\n", token)
 	u := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s", token)
 	wxmsg := &Message{
 		ToUser:  user,
