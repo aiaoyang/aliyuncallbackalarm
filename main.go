@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/viper"
 )
 
 type recallMsg struct {
@@ -34,8 +35,25 @@ func (r *recallMsg) String() string {
 		r.CurValue,
 	)
 }
+
+var (
+	// Config All config
+	Config = viper.New()
+	// Users wechat notify users
+	Users string
+)
+
 func init() {
 	log.SetFlags(log.Llongfile | log.Ldate)
+	Config.SetConfigFile("config.yaml")
+	Config.SetConfigType("yaml")
+	err := Config.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	Users = strings.Join(Config.GetStringSlice("wechat.users"), "|")
+	log.Printf("users: %s\n", Users)
+
 }
 func main() {
 	router := gin.Default()
@@ -52,18 +70,19 @@ func recall(c *gin.Context) {
 		log.Println(err)
 		c.Abort()
 	}
-	notifyUser := "yangjiangdong"
-	sendWechatMSG(notifyUser, fmt.Sprintf("%s", msg))
+	sendWechatMSG(Users, fmt.Sprintf("%s", msg))
 }
 func keyValueToMap(s string) map[string]string {
-	s1 := strings.Replace(s, "=", ":", 100)
-	s2 := strings.Replace(s1, " ", "", 100)
-	s3 := strings.Replace(s2, "{", "", 1)
-	s4 := strings.Replace(s3, "}", "", 1)
-	s5 := strings.Split(s4, ",")
+	// e.g: %7Bport%3D10080%2C+protocol%3Dtcp%2C+userId%3D1854764472318598%2C+instanceId%3Dlb-t4n4zszmjw0o8to3nyedp%7D&expression=%24Maximum%3C10000}
+	// src: {port=10080, protocol=tcp, userId=1854764472318598, instanceId=lb-t4n4zszmjw0o8to3nyedp}
+	// dst: port=10080,protocol=tcp,userId=1854764472318598,instanceId=lb-t4n4zszmjw0o8to3nyedp
+	s1 := strings.Replace(s, " ", "", -1)
+	s2 := strings.Replace(s1, "{", "", -1)
+	s3 := strings.Replace(s2, "}", "", -1)
+	s4 := strings.Split(s3, ",")
 	m := make(map[string]string)
-	for _, v := range s5 {
-		s5 := strings.Split(v, ":")
+	for _, v := range s4 {
+		s5 := strings.Split(v, "=")
 		m[s5[0]] = s5[1]
 	}
 	return m

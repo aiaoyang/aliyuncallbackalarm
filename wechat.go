@@ -8,8 +8,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/spf13/viper"
 )
 
 // token cache
@@ -66,19 +64,12 @@ func (t *tokenCache) Get() string {
 	return t.token
 }
 func genAccessToken() (string, error) {
-	v := viper.New()
-	v.SetConfigType("yaml")
-	f, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
-		log.Println(err)
-	}
-	v.ReadConfig(bytes.NewBuffer(f))
-	// 判断是否正确取得配置
-	corpID, ok := v.Get("wechat.corpID").(string)
+
+	corpID, ok := Config.Get("wechat.corpID").(string)
 	if !ok {
 		return "", fmt.Errorf("corpID")
 	}
-	secret, ok := v.Get("wechat.secret").(string)
+	secret, ok := Config.Get("wechat.secret").(string)
 	if !ok {
 		return "", fmt.Errorf("secret")
 	}
