@@ -60,7 +60,7 @@ func Test_readIns(t *testing.T) {
 			break
 		}
 		slice := strings.Fields(string(l))
-		m[slice[0]] = slice[2]
+		m[slice[1]] = slice[2]
 	}
 	for k, v := range m {
 		fmt.Printf("metric[\"%s\"]=\"%s\"\n", k, v)

@@ -10,6 +10,6 @@ wechat:
     - liuzhenyong
     - zhangkui
     - zhenyong
-  corpID: wwbd049c7c3bd9f25d
+  corpID:
   agentID: 1000002
-  secret: 0m6wkOIMhz-avtsXh_g9rG9lrtg3wueGebCGheyjJ7I
+  secret: 

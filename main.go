@@ -23,12 +23,12 @@ type recallMsg struct {
 }
 
 func (r *recallMsg) String() string {
-	return fmt.Sprintf("告警规则: [ %s ]\n告警状态: [ %s ]\n主机名: [ %s ]\n告警条件: [ %v ]\n告警指标: [ %s ]\n当前值: [ %s ]\n",
+	return fmt.Sprintf("告警规则: [ %s ]\n告警状态: [ %s ]\n主机名称: [ %s ]\n告警条件: [ %v ]\n告警指标: [ %s ]\n当前值: [ %s ]\n",
 		// r.UserID,
 		r.AlterName,
+		alertState[r.AlertState],
 		// 根据instanceID 获取主机名
 		instance[keyValueToMap(r.Dimensions)["instanceId"]],
-		alertState[r.AlertState],
 		r.Expression,
 		metric[r.MetricName],
 		r.CurValue,
