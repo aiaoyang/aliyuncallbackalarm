@@ -49,19 +49,23 @@ type wechatMsgResp struct {
 	Invalidtag   string `json:"invalidtag"`
 }
 
-func (t *tokenCache) Get() string {
+func (t *tokenCache) Get() (string, error) {
 	if t.token == "" || time.Now().Add(-t.timeout).After(t.timestamp) {
 		token, err := genAccessToken()
 		if err != nil {
 			log.Println(err)
 		}
+		if token == "" {
+			return "", fmt.Errorf("ERROR: gen token from tencent")
+		}
 		t.token = token
 		t.timestamp = time.Now()
-		log.Printf("gen token from tencent\n")
-		return token
+		log.Printf("INFO: gen token from tencent\n")
+		return token, nil
+
 	}
 	// log.Printf("gen token from cache %s\n", t.token)
-	return t.token
+	return t.token, nil
 }
 func genAccessToken() (string, error) {
 
@@ -103,7 +107,11 @@ var cacheToken = &tokenCache{
 }
 
 func sendWechatMSG(user string, msgInfo string) {
-	token := cacheToken.Get()
+	log.Printf("callback msg: %s\n", msgInfo)
+	token, err := cacheToken.Get()
+	if err != nil {
+		log.Println(err)
+	}
 	u := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s", token)
 	wxmsg := &Message{
 		ToUser:  user,

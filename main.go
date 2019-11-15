@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -23,21 +24,60 @@ type recallMsg struct {
 	// MetricProject string `form:"metricProject"`
 }
 
+// Dimensions Dimensions
+// 以后阿里更新接口返回数据结构用
+// type Dimensions struct {
+// }
+
 func (r *recallMsg) String() string {
-	return fmt.Sprintf("告警规则: [ %s ]\n告警状态: [ %s ]\n主机名称: [ %s ]\n告警条件: [ %v ]\n告警指标: [ %s ]\n当前值: [ %s ]\n",
-		// r.UserID,
+	// 正则匹配
+	// dimensions 正则
+	pat1 := "=r-|=rm-|=i-|=dbs"
+	// expression 正则
+	pat2 := `\w+`
+
+	reg1 := regexp.MustCompile(pat1)
+	reg2 := regexp.MustCompile(pat2)
+	insType := reg1.FindString(r.Dimensions)
+	expr := reg2.FindString(r.Expression)
+
+	alarmInstance := ""
+	expression := ""
+	metric := ""
+
+	if insType == "" {
+		log.Printf("Dimensions: %s\n", r.Dimensions)
+		alarmInstance = r.Dimensions
+	} else {
+		alarmInstance = Instance[keyValueToMap(r.Dimensions)["instanceId"]]
+	}
+	if Metric[r.MetricName] == "" {
+		log.Printf("MetricName: %s\n", r.MetricName)
+		metric = r.MetricName
+	} else {
+		metric = Metric[r.MetricName]
+	}
+	if expr == "" {
+		log.Printf("Expression: %s\n", r.Expression)
+		expression = r.Expression
+	} else {
+		log.Println(expr)
+		expression = strings.Replace(r.Expression, "$"+expr, Expression[expr], -1)
+	}
+
+	return fmt.Sprintf("告警规则: [ %s ]\n告警状态: [ %s ]\n告警实例: [ %s ]\n实例类型: [ %s ]\n告警条件: [ %v ]\n告警指标: [ %s ]\n当前值: [ %s ]\n",
 		r.AlterName,
-		alertState[r.AlertState],
-		// 根据instanceID 获取主机名
-		instance[keyValueToMap(r.Dimensions)["instanceId"]],
-		r.Expression,
-		metric[r.MetricName],
+		AlertState[r.AlertState],
+		alarmInstance,
+		InstanceType[insType],
+		expression,
+		metric,
 		r.CurValue,
 	)
 }
 
 var (
-	// Config All config
+	// Config init config
 	Config = viper.New()
 	// Users wechat notify users
 	Users string
@@ -63,6 +103,14 @@ func main() {
 }
 
 func recall(c *gin.Context) {
+	// body := c.Request.Body
+	// bodyLine, err := ioutil.ReadAll(body)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	// log.Printf("request's body is: %s\n", string(bodyLine))
+	// c.Request.Body = body
 	log.Println(c.Request.Header)
 	msg := &recallMsg{}
 	err := c.MustBindWith(msg, binding.Form)
